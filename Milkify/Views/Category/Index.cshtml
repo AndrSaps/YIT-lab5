@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewData["Title"] = "Categories";
+}
+@model Milkify.Core.Datatable.DatatableRequests.DatatableResult
+
+<div class="card">
+    <div class="card-header"><h5>Categories</h5></div>
+    <div class="card-body">
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="btn btn-primary mb-2" asp-action="Create">Create Category</a>
+        }
+      
+        @await Html.PartialAsync("~/Views/Common/Datatable.cshtml", @Model)
+    </div>
+</div>

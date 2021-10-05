@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewData["Title"] = "Customers";
+}
+@model Milkify.Core.Datatable.DatatableRequests.DatatableResult
+
+<div class="card">
+    <div class="card-header"><h5>Customers</h5></div>
+    <div class="card-body">
+        @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
+        {
+            <a class="btn btn-primary mb-2" asp-action="Create">Create Customer</a>
+        }
+        @await Html.PartialAsync("~/Views/Common/Datatable.cshtml", @Model)
+    </div>
+</div>

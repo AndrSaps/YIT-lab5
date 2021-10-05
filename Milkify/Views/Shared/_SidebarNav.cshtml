@@ -1,0 +1,13 @@
+﻿@using Milkify.Services
+@inject ILayoutService LayoutService
+<nav class="sidebar-nav">
+    <ul class="nav">
+        @foreach (var tab in LayoutService.GetHeaderTabs(User))
+        {
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-controller="@tab.ControllerName" asp-action="@tab.ActionName"><i class="nav-icon @tab.NavIcon"></i>@tab.TabName</a>
+        </li>
+        }
+    </ul>
+</nav>
+

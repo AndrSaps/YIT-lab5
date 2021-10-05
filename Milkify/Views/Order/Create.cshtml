@@ -1,0 +1,95 @@
+﻿@{
+    ViewData["Title"] = "Orders";
+}
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Milkify.Core.Dtos
+@using Milkify.Core.Datatable.DatatableRequests
+@using Milkify.Core.Extensions
+@using Milkify.Services
+@model Milkify.Core.Dtos.OrderDto
+
+<div class="card">
+    <div class="card-header"><h5>Create Order</h5></div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label asp-for="Customer" class="control-label"></label>
+                        <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId">
+                            <option value="">-- Select Customer --</option>
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                    </div>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="form-group">
+                            <label asp-for="Seller" class="control-label"></label>
+                            <select asp-for="SellerId" class="form-control" asp-items="ViewBag.SellerId">
+                                <option value="">-- Select Seller --</option>
+                            </select>
+                            <span asp-validation-for="SellerId" class="text-danger"></span>
+                        </div>
+                    }
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    jQuery(document).ready(function ($) {
+        var tableRowNum = 0;
+        $("#productArea tr").on("click",
+            (data) => {
+                var row = data.target.parentNode;
+
+                console.log(data.target.parentNode.id);
+                var tableRow = "<tr>";
+
+                tableRow += "<td>";
+                tableRow += data.target.parentNode.children.item(0).textContent;
+                tableRow += "</td>";
+
+                tableRow += "<td>";
+                tableRow += data.target.parentNode.children.item(1).textContent;
+                tableRow += "</td>";
+
+                tableRow += "<td>";
+                tableRow += data.target.parentNode.children.item(2).textContent;
+                tableRow += "</td>";
+                tableRow += "<td>";
+                tableRow += "<input type='number' name='items[" + tableRowNum + "].ProductQuantity' value='1' />";
+                tableRow += "</td>";
+                tableRow += "<td hidden>";
+                tableRow += "<input name='items[" + tableRowNum + "].ProductId' value='" + data.target.parentNode.id + "' />";
+                tableRow += "</td>";
+                tableRow += "</tr>";
+
+                console.log(tableRow);
+                $("#productTable tbody").append(tableRow);
+                tableRowNum++;
+            });
+    });
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#CustomerId').select2({
+            placeholder: "Select Customer",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+        $('#SellerId').select2({
+            placeholder: "Select Seller",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+    });
+</script>

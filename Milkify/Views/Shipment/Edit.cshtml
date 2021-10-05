@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Shipments";
+}
+@using Milkify.Core.Enums
+@using Milkify.Services
+@model Milkify.Core.Dtos.ShipmentDto
+
+<div class="card">
+    <div class="card-header"><h5>Edit Shipment</h5></div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="ShipmentStatus" hidden />
+            <input asp-for="OrderId" hidden />
+            <div class="form-group">
+                <label asp-for="ShipmentNumber" class="control-label">Shipment Number</label>
+                <input asp-for="ShipmentNumber" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShipmentStatus" class="control-label">Shipment Status</label>
+                <input asp-for="ShipmentStatus" disabled class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippedDate" class="control-label">Shipped</label>
+                <input asp-for="ShippedDate" disabled type="date" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DeliveredDate" class="control-label">Delivered</label>
+                <input asp-for="DeliveredDate" disabled type="date" class="form-control" />
+            </div>
+            <div class="form-group">
+                @if (User.IsInRole("Admin") && Model.ShipmentStatus == ShipmentStatus.Placed)
+                {
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                }
+                <a class="btn btn-secondary" asp-controller="Order" asp-action="Edit" asp-route-id="@Model.OrderId">Go to Order</a>
+                <a class="btn btn-secondary" asp-controller="Route" asp-action="Edit" asp-route-id="@Model.RouteId">Go to Route</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var placeSearch, autocomplete;
+
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('addressAutocomplete'), { types: ['address'] });
+
+        autocomplete.setFields(['address_component']);
+
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+        var place = {
+            address: $("#addressAutocomplete")[0].value,
+            longitude: 0,
+            latitude: 0
+        }
+
+        $.ajax({
+            url: "/Address/GetLocationId",
+            data: JSON.stringify(place),
+            contentType: "application/json",
+            method: "POST",
+            success: function(result) {
+                document.getElementById("CityId").value = result;
+            }
+        });
+    }
+
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle(
+                    { center: geolocation, radius: position.coords.accuracy });
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+</script>

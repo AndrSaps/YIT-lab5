@@ -1,0 +1,31 @@
+@using Microsoft.AspNetCore.Identity
+@using Milkify.Core.Entities.Membership
+@using Milkify.Services
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@inject IUserService UserService
+@{
+    var user = UserService.GetDto(long.Parse(UserManager.GetUserId(User)));
+}
+
+<ul class="navbar-nav mr-4">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+            Hello, @user.FirstName @user.LastName!
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+            <form method = "post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "User", new {area = ""})"> 
+                <button class="dropdown-item" type="submit"> <i class="fa fa-lock"></i> Logout</button>
+            </form> 
+        </div>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul>

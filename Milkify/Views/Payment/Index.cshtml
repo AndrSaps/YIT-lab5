@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Shipments To Store";
+}
+@model Milkify.Core.Datatable.DatatableRequests.DatatableResult
+
+<div class="card">
+    <div class="card-header"><h5>Payments</h5></div>
+    <div class="card-body">
+        @await Html.PartialAsync("~/Views/Common/Datatable.cshtml", @Model)
+    </div>
+</div>

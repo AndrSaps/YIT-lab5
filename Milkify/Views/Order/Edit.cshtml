@@ -1,0 +1,265 @@
+﻿@{
+    ViewData["Title"] = "Orders";
+}
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Milkify.Core.Dtos
+@using Milkify.Core.Datatable.DatatableRequests
+@using Milkify.Core.Entities
+@using Milkify.Core.Enums
+@using Milkify.Core.Extensions
+@using Milkify.Services
+@model Milkify.Core.Dtos.OrderDto
+
+<div class="card">
+<div class="card-header">
+    <div class="row">
+        <div class="col">
+            <h5>Edit Order #@Model.OrderNumber</h5>
+        </div>
+        @*<div class="col">
+            <form asp-action="PrintInvoice" method="post">
+                <input name="OrderId" value="@Model.Id" hidden>
+                <button formtarget="_blank" type="submit" class="btn btn-primary float-right">
+                    Print invoice
+                </button>
+            </form>
+        </div>*@
+    </div>
+</div>
+<div class="card-body">
+    <div class="row">
+        <div class="col-3">
+            <form asp-action="Edit" id="mainForm">
+                <div class="form-group">
+                    <label asp-for="OrderNumber" class="control-label">Order Number</label>
+                    <input asp-for="OrderNumber" class="form-control" />
+                    <span asp-validation-for="OrderNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Customer" class="control-label"></label>
+                    @if (Model.IsEditable)
+                    {
+                        <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId">
+                            <option value="">-- Select Customer --</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <input asp-for="CustomerId" id="SellerId" hidden class="form-control" />
+                        <select asp-for="CustomerId" name="CustomerDisabled" disabled class="form-control" asp-items="ViewBag.CustomerId">
+                            <option value="">-- Select Customer --</option>
+                        </select>
+                    }
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="form-group">
+                        <label asp-for="Seller" class="control-label"></label>
+                        @if (Model.IsEditable)
+                        {
+                            <select asp-for="SellerId" class="form-control" asp-items="ViewBag.SellerId">
+                                <option value="">-- Select Seller --</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <input asp-for="SellerId" id="SellerId" hidden class="form-control" />
+                            <select asp-for="SellerId" name="SellerDisabled" disabled class="form-control" asp-items="ViewBag.SellerId">
+                                <option value="">-- Select Seller --</option>
+                            </select>
+                        }
+                        <span asp-validation-for="SellerId" class="text-danger"></span>
+                    </div>
+                }
+                <div class="form-group">
+                    <label class="control-label">Order Status</label>
+                    <input disabled id="OrderStatus" value="@Model.OrderStatus.ToString()" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="TotalAmount" class="control-label">Order Total</label>
+                    <input asp-for="TotalAmount" disabled id="TotalPrice" class="form-control" />
+                </div>
+                <input asp-for="OrderStatus" id="Status" hidden class="form-control" />
+                <input asp-for="OrderNumber" id="OrderNumber" hidden class="form-control" />
+                <input asp-for="OrderCreated" id="OrderCreated" hidden class="form-control" />
+                @if (Model.IsEditable)
+                {
+                    <div class="form-group my-2 d-inline">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                }
+                @if (Model.OrderStatus == OrderStatus.Placed && User.IsInRole("Admin"))
+                {
+                    <a class="btn btn-secondary"
+                       asp-controller="Order" asp-action="MarkOrderAsPaid"
+                       asp-route-orderId="@Model.Id" asp-route-isShipmentNeeded="true">
+                        Mark As Paid
+                    </a>
+                }
+                @if (Model.Shipment != null && User.IsInRole("Admin") || User.IsInRole("Driver"))
+                {
+                    <a class="btn btn-secondary" asp-controller="Shipment" asp-action="Edit" asp-route-Id="@Model.ShipmentId">
+                        Go to Shipment
+                    </a>
+                }
+                @if (Model.Shipment == null && Model.OrderStatus == OrderStatus.Paid && (User.IsInRole("Admin")))
+                {
+                    <a class="btn btn-secondary" asp-controller="Shipment" asp-action="Create" asp-route-orderId="@Model.Id">
+                        Add Shipment
+                    </a>
+                }
+            </form>
+        </div>
+        <div class="col-9">
+            <div>
+                <table class="table table-bordered table-striped table-hover thead-light col-12" id="productTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Price
+                            </th>
+                            <th>
+                                Weight
+                            </th>
+                            <th>
+                                Quantity
+                            </th>
+                            <th>
+                                Total
+                            </th>
+                            @if (Model.IsEditable)
+                            {
+                                <th>
+                                    Actions
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Items.Count; ++i)
+                        {
+                            <tr>
+                                <td>
+                                    @Model.Items[i].Product.ProductName
+                                </td>
+                                <td>
+                                    @Model.Items[i].Product.Weight
+                                </td>
+                                <td>
+                                    @Model.Items[i].Product.Price
+                                </td>
+                                <td>
+                                    @if (Model.IsEditable)
+                                    {
+                                        <input form="mainForm" type='number' name='Items[@i].ProductQuantity' value='@Model.Items[i].ProductQuantity' />
+                                    }
+                                    else
+                                    {
+                                        <input form="mainForm" type='number' hidden name='Items[@i].ProductQuantity' value='@Model.Items[i].ProductQuantity' />
+                                        @Model.Items[i].ProductQuantity
+                                    }
+                                </td>
+                                <td>
+                                    @Model.Items[i].Total
+                                </td>
+                                @if (Model.IsEditable)
+                                {
+                                    <td>
+                                        <a class="col p-0 text-center" asp-action="RemoveProductFromOrder" asp-route-orderId="@Model.Id" asp-route-productOrderId="@Model.Items[i].Id">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                }
+                                <td hidden>
+                                    <input form="mainForm" name='Items[@i].ProductId' value='@Model.Items[i].ProductId' />
+                                </td>
+                                <td hidden>
+                                    <input form="mainForm" name='Items[@i].Id' value='@Model.Items[i].Id' />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.IsEditable)
+            {
+                <form asp-action="AddProductToOrder" method="post" class="d-flex">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group col-10">
+                        <select id="ProductId" name="ProductId" class="form-control mt-1" asp-items="ViewBag.ProductId">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="Items" class="text-danger"></span>
+                    </div>
+                    <input name="OrderId" value="@Model.Id" hidden>
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-primary mb-2" id="add-product-btn" disabled>
+                            Add Product
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Is customer need shipment?
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary"
+                   asp-controller="Order" asp-action="MarkOrderAsPaid"
+                   asp-route-orderId="@Model.Id" asp-route-isShipmentNeeded="true">
+                    Yes
+                </a>
+                <a class="btn btn-secondary"
+                   asp-controller="Order" asp-action="MarkOrderAsPaid"
+                   asp-route-orderId="@Model.Id" asp-route-isShipmentNeeded="false">
+                    No
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#ProductId').select2({
+            placeholder: "Select Product",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+        $('#ProductId').on("select2:select",
+            function(e) {
+                $("#add-product-btn").prop('disabled', false);
+            });
+        $('#ProductId').on("select2:unselect",
+            function(e) {
+                $("#add-product-btn").prop('disabled', true);
+            });
+        $('#CustomerId').select2({
+            placeholder: "Select Customer",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+        $('#SellerId').select2({
+            placeholder: "Select Seller",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+    });
+</script>

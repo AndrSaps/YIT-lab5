@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+@using Milkify.Core.Datatable.DatatableRequests.RequestModels
+@model Milkify.Services.AnalyticsRequestModel
+
+
+<div class="card">
+    <div class="card-header"><h5>Analytics</h5></div>
+    <div class="card-body">
+            @{
+                var filter = Model.Filter;
+                var dateFromString = filter?.DateFrom != null ? filter.DateFrom.Value.ToString("yyyy-MM-dd") : "";
+                var dateToString = filter?.DateTo != null ? filter.DateTo.Value.ToString("yyyy-MM-dd") : "";
+            }
+            <form asp-action="Index" method="get">
+                <div class="row">
+                    <div class="col-2">
+                        <input type="text" onfocus="(this.type = 'date')" onblur="(this.type = 'text')" name="DateFrom" value="@dateFromString" class="form-control" id="DateFrom" placeholder="Date From" />
+                    </div>
+                    <div class="col-2">
+                        <input type="text" onfocus="(this.type = 'date')" onblur="(this.type = 'text')" name="DateTo" value="@dateToString" class="form-control" id="DateTo" placeholder="Date To" />
+                    </div>
+                    <div class="col-3">
+                        <select name="CategoryId" id="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <select name="ProductId" id="ProductId" class="form-control" asp-items="ViewBag.ProductId">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-group">
+                            <input type="submit" value="Filter" class="btn btn-primary" />
+                            <a class="btn btn-secondary" asp-action="Index">Clear Filters</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="row">
+                @if (Model.Data.PieChartData.Count() != 0)
+                {
+                    <div class="col-8">
+                        <canvas id="pieChart" style="width: 100%"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <h2>No data available</h2>
+                }
+            </div>
+        </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#ProductId').select2({
+            placeholder: "Select Product",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+        $('#ProductId').on("select2:select",
+            function (e) {
+                $("#CategoryId").prop('disabled', true);
+            });
+        $('#ProductId').on("select2:unselect",
+            function (e) {
+                $("#CategoryId").prop('disabled', false);
+            });
+        $('#CategoryId').select2({
+            placeholder: "Select Category",
+            allowClear: true,
+            theme: "bootstrap"
+        });
+        $('#CategoryId').on("select2:select",
+            function (e) {
+                $("#ProductId").prop('disabled', true);
+            });
+        $('#CategoryId').on("select2:unselect",
+            function (e) {
+                $("#ProductId").prop('disabled', false);
+            });
+
+        if ("@filter.ProductId.HasValue.ToString()" === "True")
+        {
+            $('#CategoryId').prop('disabled', true);
+        }
+        else if ("@filter.CategoryId.HasValue.ToString()" === "True")
+        {
+            $('#ProductId').prop('disabled', true);
+        }
+        var pieChartData = @Html.Raw(Json.Serialize(Model.Data.PieChartData));
+        var lineChartData = @Html.Raw(Json.Serialize(Model.Data.LineChartData));
+
+        var ctx1 = document.getElementById('pieChart').getContext('2d');
+        var chart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: pieChartData.map(x => x.name),
+                datasets: [{
+                    label: 'Products sold',
+                    backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                    data: pieChartData.map(x => x.value)
+                }]
+            },
+            options: {
+                 "scales": {
+                     "yAxes": [
+                         {
+                             "ticks":
+                             {
+                                  "beginAtZero": true
+                             }
+                         }]
+                 }
+            }
+        
+        });
+
+        var ctx2 = document.getElementById('pieChart').getContext('2d');
+        var chart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: lineChartData.map(x => x.name),
+                datasets: [{
+                    label: 'Products sold by month',
+                    backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                    data: lineChartData.map(x => x.value)
+                }]
+            },
+
+            options: {}
+        });
+    });
+</script>
+

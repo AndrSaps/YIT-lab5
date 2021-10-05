@@ -1,0 +1,64 @@
+﻿@using Milkify.Core.Enums
+@using Milkify.Core.Extensions
+@model Milkify.Core.Datatable.DatatableRequests.DatatableResult
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Routing
+@using X.PagedList.Mvc.Common
+@using X.PagedList.Mvc.Core
+@inject IAuthorizationService AuthorizationService
+
+
+
+<table class="table table-bordered table-striped table-hover thead-light">
+    <tr>
+        @foreach (var col in Model.ColumnConfiguration)
+        {
+            <th><a class="header-sort-link" href="@($"{Context.GetRouteData().Values["Controller"]}?{Model.Filter.GetQueryString("SortOrder", col.SortOrder)}")">
+                @col.Label
+            </a></th>
+        }
+        @if (Model.DatatableActions != null && Model.DatatableActions.Any())
+        {
+            <th width="85px">Actions</th>
+        }
+    </tr>
+    @if (Model.Data.Count > 0)
+    {
+        foreach (var d in Model.Data)
+         {
+             <tr id="@d.GetPropertyByName("Id")">
+                 @foreach (var col in Model.ColumnConfiguration)
+                 {
+                     <td class="@col.Name" value="@d.GetPropertyByName(col.Name)">@d.GetPropertyByName(col.Name)</td>
+                 }
+                 @if (Model.DatatableActions != null && Model.DatatableActions.Any())
+                 {
+                     <td>
+                         <div class="row m-0">
+                             @foreach (var action in Model.DatatableActions)
+                             {
+                                 <a class="col p-0 text-center @action.Name" href="@($"{Context.GetRouteData().Values["Controller"]}/{@action.Name}/{@d.GetPropertyByName("Id")}")">
+                                     <i class="@action.CssIconClass"></i>
+                                 </a>
+                             }
+                         </div>
+                     </td>
+                 }
+             </tr>
+         }
+    }
+    else
+    {
+        <tr>
+            <td colspan="@Model.ColumnConfiguration.Count()" class="text-center">
+                No Data Available
+            </td>
+        </tr>
+    }
+</table>
+<br />
+
+@Html.PagedListPager(@Model.Data, page => $"{Context.GetRouteData().Values["Controller"]}?{Model.Filter.GetQueryString("Page", page.ToString())}", new PagedListRenderOptions {
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" }
+})

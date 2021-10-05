@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Routes";
+}
+@using Milkify.Core.Datatable.DatatableRequests.RequestModels
+@using Milkify.Core.Dtos
+@using Milkify.Core.Extensions
+@using X.PagedList.Mvc.Common
+@using X.PagedList.Mvc.Core
+@model Milkify.Core.Datatable.DatatableRequests.DatatableResult
+
+<div class="card">
+    <div class="card-header"><h5>Routes</h5></div>
+    <div class="card-body">
+        @if (User.IsInRole("Admin") || @User.IsInRole("Seller"))
+        {
+        <a class="btn btn-primary mb-2" asp-action="Create">Create Route</a>
+        }
+        <form asp-action="Index" method="get">
+            @{
+                var filter = Model.Filter as OrderRequestModel;
+                var dateFromString = filter?.DateFrom != null ? filter.DateFrom.Value.ToString("yyyy-MM-dd") : "";
+                var dateToString = filter?.DateTo != null ? filter.DateTo.Value.ToString("yyyy-MM-dd") : "";
+            <div class="row">
+                <div class="col-2">
+                    <div class="form-group">
+                        <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" name="DateFrom" value="@dateFromString" class="form-control" id="DateFrom" placeholder="Date From" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="form-group">
+                        <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" name="DateTo" value="@dateToString" class="form-control" id="DateTo" placeholder="Date To" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="form-group">
+                        <select name="CustomerId" id="CustomerId" class="form-control" asp-items="ViewBag.CustomerId">
+                            <option value="">-- Select Customer --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="form-group">
+                        <select name="StatusId" id="StatusId" class="form-control" asp-items="ViewBag.StatusId">
+                            <option value="">-- Select Status --</option>
+                        </select>
+                    </div>
+                </div>
+                @if (User.IsInRole("Admin") || User.IsInRole("Driver"))
+                {
+                    <div class="col-2">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <select name="SellerId" id="SellerId" class="form-control" asp-items="ViewBag.SellerId">
+                                    <option value="">-- Select Seller --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="col-2">
+                    <div class="form-group">
+                        <input type="submit" value="Filter" class="btn btn-primary" />
+                        <a class="btn btn-secondary" asp-action="Index">Clear Filters</a>
+                    </div>
+                </div>
+            </div>
+            }
+        </form>
+        @await Html.PartialAsync("~/Views/Common/Datatable.cshtml", @Model)
+    </div>
+</div>

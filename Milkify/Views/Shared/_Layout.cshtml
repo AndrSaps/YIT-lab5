@@ -1,0 +1,168 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Milkify.Core.Entities.Membership
+@using Milkify.Services
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@inject IUserService UserService
+@inject ILayoutService LayoutService
+<!--
+* CoreUI - Open Source Bootstrap Admin Template
+* @@version v1.0.10
+* @@link http://coreui.io
+* Copyright (c) 2017 creativeLabs Łukasz Holeczek
+* @@license MIT
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="CoreUI - Open Source Bootstrap Admin Template">
+    <meta name="author" content="Łukasz Holeczek">
+    <meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,AngularJS,Angular,Angular2,Angular 2,Angular4,Angular 4,jQuery,CSS,HTML,RWD,Dashboard,React,React.js,Vue,Vue.js">
+    <link rel="shortcut icon" href="~/img/favicon.png">
+
+    <title>@ViewData["Title"] - Milkify</title>
+
+    <!-- Icons -->
+    <link href="~/node_modules/flag-icon-css/css/flag-icon.min.css" rel="stylesheet" />
+    <link href="~/node_modules/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/node_modules/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" />
+    
+    <link href="/css/select2.min.css" rel="stylesheet" />
+    
+    <script src="~/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="~/node_modules/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+
+    <!-- Main styles for this application -->
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/style.css">
+        <!-- Icons -->
+    </environment>
+
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/style.min.css" asp-append-version="true" />
+    </environment>
+
+    <!-- Styles required by this view -->
+    @RenderSection("Styles", required: false)
+</head>
+<!-- BODY options, add following classes to body to change options
+
+// Header options
+1. '.header-fixed'					- Fixed Header
+
+// Brand options
+1. '.brand-minimized'       - Minimized brand (Only symbol)
+
+// Sidebar options
+1. '.sidebar-fixed'					- Fixed Sidebar
+2. '.sidebar-hidden'				- Hidden Sidebar
+3. '.sidebar-off-canvas'		- Off Canvas Sidebar
+4. '.sidebar-minimized'			- Minimized Sidebar (Only icons)
+5. '.sidebar-compact'			  - Compact Sidebar
+
+// Aside options
+1. '.aside-menu-fixed'			- Fixed Aside Menu
+2. '.aside-menu-hidden'			- Hidden Aside Menu
+3. '.aside-menu-off-canvas'	- Off Canvas Aside Menu
+
+// Breadcrumb options
+1. '.breadcrumb-fixed'			- Fixed Breadcrumb
+
+// Footer options
+1. '.footer-fixed'					- Fixed footer
+
+-->
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @Html.Partial("_AppHeader")
+}
+
+<div class="app-body">
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="sidebar">
+
+        @Html.Partial("_SidebarNav")
+
+        <button class="sidebar-minimizer brand-minimizer" type="button"></button>
+    </div>
+}
+
+    <main class="main mt-3">
+
+        <div class="container-fluid">
+
+            @RenderBody()
+
+        </div>
+
+    </main>
+    @*@if (SignInManager.IsSignedIn(User))
+    {
+
+        @Html.Partial("_AsideMenu")
+    }*@
+
+</div>
+
+    @Html.Partial("_Footer")
+
+    <!-- Bootstrap and necessary plugins -->
+    <script src="~/node_modules/popper.js/dist/umd/popper.min.js"></script>
+    <script src="~/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/node_modules/pace-progress/pace.min.js"></script>
+    <!-- Plugins and scripts required by all views -->
+<script src="~/node_modules/chart.js/dist/Chart.min.js"></script>
+    <!-- CoreUI main scripts -->
+    <script src="~/js/app.js"></script>
+    <!-- Plugins and scripts required by this views -->
+<!-- Custom scripts required by this view -->
+    
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoFXXuHYpHNtkSa87jEMBgxGyW2jO1IhE&libraries=places&callback=initAutocomplete" async defer></script>
+<script>
+    $(document).ready(function(){
+        $('.date').mask('00/00/0000');
+        $('.time').mask('00:00:00');
+        $('.date_time').mask('00/00/0000 00:00:00');
+        $('.cep').mask('00000-000');
+        $('.phone').mask('0000-0000');
+        $('.phone_with_ddd').mask('(000) 0000-000');
+        $('.phone_us').mask('(000) 000-0000');
+        $('.mixed').mask('AA 000000');
+        $('.cpf').mask('000.000.000-00', {reverse: true});
+        $('.cnpj').mask('00.000.000/0000-00', {reverse: true});
+        $('.money').mask('000,000,000,000,000.00', {reverse: true});
+        $('.money2').mask("#.##0,00", {reverse: true});
+        $('.ip_address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
+            translation: {
+                'Z': {
+                    pattern: /[0-9]/, optional: true
+                }
+            }
+        });
+        $('.ip_address').mask('099.099.099.099');
+        $('.percent').mask('##0,00%', {reverse: true});
+        $('.clear-if-not-match').mask("00/00/0000", {clearIfNotMatch: true});
+        $('.placeholder').mask("00/00/0000", {placeholder: "__/__/____"});
+        $('.fallback').mask("00r00r0000", {
+            translation: {
+                'r': {
+                    pattern: /[\/]/,
+                    fallback: '/'
+                },
+                placeholder: "__/__/____"
+            }
+        });
+        $('.selectonfocus').mask("00/00/0000", {selectOnFocus: true});
+    });
+</script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

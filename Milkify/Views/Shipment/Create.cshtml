@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Shipments";
+}
+@model Milkify.Core.Dtos.ShipmentDto
+
+<div class="card">
+    <div class="card-header"><h5>Create Shipment</h5></div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Order" class="control-label">Order</label>
+                <select asp-for="OrderId" class="form-control" asp-items="ViewBag.OrderId">
+                    <option value="">-- Select Order --</option>
+                </select>
+                <span asp-validation-for="OrderId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShipmentNumber" class="control-label">Shipment Number</label>
+                <input asp-for="ShipmentNumber" type="number" class="form-control"/>
+                <span asp-validation-for="ShipmentNumber" class="text-danger"/>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoFXXuHYpHNtkSa87jEMBgxGyW2jO1IhE&libraries=places&callback=initAutocomplete" async defer></script>
+
+<script>
+    var placeSearch, autocomplete;
+
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('addressAutocomplete'), { types: ['address'] });
+
+        autocomplete.setFields(['address_component']);
+
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+        var place = {
+            address: $("#addressAutocomplete")[0].value,
+            longitude: 0,
+            latitude: 0
+        }
+
+        $.ajax({
+            url: "/Address/GetLocationId",
+            data: JSON.stringify(place),
+            contentType: "application/json",
+            method: "POST",
+            success: function(result) {
+                document.getElementById("CityId").value = result;
+            }
+        });
+    }
+
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle(
+                    { center: geolocation, radius: position.coords.accuracy });
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+</script>

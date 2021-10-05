@@ -1,0 +1,64 @@
+// Here you can add other styles
+
+.login-page {
+    height: 90vh;
+    align-content: center;
+}
+
+.not-found-row {
+    height: 50vh;
+    align-items: center;
+}
+
+.not-found-card {
+    background: #FFF;
+    color: #54627c;
+    box-shadow: 0 2px 4px 0 rgba(84, 98, 124, .2);
+
+    .labels {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .label-404 {
+            font-size: 80px;
+            line-height: 94px;
+        }
+
+        .page-label {
+            font-size: 30px;
+            word-break: break-all;
+            max-width: 150px;
+            margin-left: 15px;
+            line-height: 32px;
+        }
+    }
+
+    .description {
+        font-size: 15px;
+    }
+}
+
+tr > td.IsPaid[value="Yes"] {
+    a.Delete {
+        display: none;
+    }
+}
+
+th > a {
+    text-decoration: none;
+    color: #000000;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+th.sorted > a.header-sort-link {
+    color: #167495;
+}
+
+.tour-btn {
+    white-space: normal;
+    text-align: justify;
+}

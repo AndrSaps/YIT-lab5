@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Orders";
+}
+@model Milkify.Core.Dtos.InventoryDto
+
+<div class="card">
+    <div class="card-header"><h5>Create Inventory</h5></div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Shelf" class="control-label">Shelf</label>
+                <input asp-for="Shelf" type="text" class="form-control" />
+                <span asp-validation-for="Shelf" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SupplyQuantity" class="control-label">Quantity</label>
+                <input asp-for="SupplyQuantity" type="number" class="form-control" />
+                <span asp-validation-for="SupplyQuantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SupplyCode" class="control-label">Supply Code</label>
+                <input asp-for="SupplyCode" type="text" class="form-control" />
+                <span asp-validation-for="SupplyCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product" class="control-label"></label>
+                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId">
+                    <option value="">-- Select Product --</option>
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <select asp-for="FactoryId" class="form-control" asp-items="ViewBag.FactoryId">
+                    <option value="">-- Select Factory --</option>
+                </select>
+                <span asp-validation-for="FactoryId" class="text-danger"></span>
+            </div>
+            <input asp-for="ReservedSupplyQuantity" hidden value="0" type="number" class="form-control" />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

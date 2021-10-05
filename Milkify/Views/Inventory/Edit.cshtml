@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Orders";
+}
+@model Milkify.Core.Dtos.InventoryDto
+
+<div class="card">
+    <div class="card-header"><h5>Edit Inventory</h5></div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Shelf" class="control-label">Shelf</label>
+                <input asp-for="Shelf" type="text" class="form-control" />
+                <span asp-validation-for="Shelf" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SupplyQuantity" class="control-label">Quantity</label>
+                <input asp-for="SupplyQuantity" type="number" class="form-control" />
+                <span asp-validation-for="SupplyQuantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SupplyCode" class="control-label">Supply Code</label>
+                <input asp-for="SupplyCode" class="form-control" />
+                <span asp-validation-for="SupplyCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product" class="control-label"></label>
+                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId">
+                    <option value="">-- Select Product --</option>
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Factory" class="control-label"></label>
+                <select asp-for="FactoryId" class="form-control" asp-items="ViewBag.FactoryId">
+                    <option value="">-- Select Factory --</option>
+                </select>
+                <span asp-validation-for="FactoryId" class="text-danger"></span>
+            </div>
+            <input asp-for="ReservedSupplyQuantity" hidden type="number" class="form-control" />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var placeSearch, autocomplete;
+    
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('addressAutocomplete'), { types: ['address'] });
+        
+        autocomplete.setFields(['address_component']);
+        
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+        var place = {
+            address: $("#addressAutocomplete")[0].value,
+            longitude: 0,
+            latitude: 0
+        }
+
+        $.ajax({
+            url: "/Address/GetLocationId",
+            data: JSON.stringify(place),
+            contentType: "application/json",
+            method: "POST",
+            success: function(result) {
+                document.getElementById("CityId").value = result;
+            }
+        });
+    }
+
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle(
+                    { center: geolocation, radius: position.coords.accuracy });
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+</script>
